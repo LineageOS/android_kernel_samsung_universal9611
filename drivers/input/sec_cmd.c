@@ -562,7 +562,14 @@ static ssize_t sec_cmd_list_show(struct device *dev,
 	return snprintf(buf, SEC_CMD_BUF_SIZE, "%s\n", buffer);
 }
 
+#define SEC_CMD_EXT(n) \
+  static DEVICE_ATTR(cmd ##n, 0220, NULL, sec_cmd_store)
+#define SEC_CMD_ATTR(n) &dev_attr_cmd ##n.attr
+
 static DEVICE_ATTR(cmd, 0220, NULL, sec_cmd_store);
+SEC_CMD_EXT(1);
+SEC_CMD_EXT(2);
+
 static DEVICE_ATTR(cmd_status, 0444, sec_cmd_show_status, NULL);
 static DEVICE_ATTR(cmd_status_all, 0444, sec_cmd_show_status_all, NULL);
 static DEVICE_ATTR(cmd_result, 0444, sec_cmd_show_result, NULL);
@@ -571,6 +578,8 @@ static DEVICE_ATTR(cmd_list, 0444, sec_cmd_list_show, NULL);
 
 static struct attribute *sec_fac_attrs[] = {
 	&dev_attr_cmd.attr,
+	SEC_CMD_ATTR(1),
+	SEC_CMD_ATTR(2),
 	&dev_attr_cmd_status.attr,
 	&dev_attr_cmd_status_all.attr,
 	&dev_attr_cmd_result.attr,
@@ -652,6 +661,7 @@ int sec_cmd_init(struct sec_cmd_data *data, struct sec_cmd *cmds,
 		pr_err("%s %s: failed to create sysfs group\n", SECLOG, __func__);
 		goto err_sysfs_group;
 	}
+
 
 	return 0;
 
